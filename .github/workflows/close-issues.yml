@@ -18,7 +18,14 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Check if issues are enabled
+        id: check_issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "has_issues=$(gh api repos/${{ github.repository }} --jq .has_issues)" >> "$GITHUB_OUTPUT"
+
       - name: Close stale issues
+        if: steps.check_issues.outputs.has_issues == 'true'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: bun script/github/close-issues.ts
